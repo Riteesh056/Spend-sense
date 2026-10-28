@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: spendsense
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn 'app:create_app()'"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: FLASK_DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true

@@ -14,8 +14,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ── Database ──────────────────────────────────────────────────────────────────
 # The production SQLite file is stored inside a `data/` sub-directory so it
 # can be excluded from Git easily.
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DATABASE_PATH = os.path.join(DATA_DIR, "spendsense.db")
+DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
+DATABASE_PATH = os.environ.get("DATABASE_PATH", os.path.join(DATA_DIR, "spendsense.db"))
 
 # Separate database used only during automated tests.
 # Tests import this path and pass it to the app factory so real data is
