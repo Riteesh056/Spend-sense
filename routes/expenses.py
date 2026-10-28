@@ -43,6 +43,8 @@ def _validate_expense_payload(data):
                 errors.append("'amount' must be greater than zero.")
             # Convert to integer paise, rounding to the nearest paisa.
             amount_paise = round(amount_float * 100)
+            if amount_paise <= 0:
+                errors.append("'amount' must be at least ₹0.01 (1 paisa).")
         except (ValueError, TypeError):
             errors.append("'amount' must be a valid number.")
             amount_paise = None
