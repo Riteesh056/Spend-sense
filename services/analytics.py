@@ -84,6 +84,7 @@ def get_monthly_summary(db, month):
 
     return {
         "month":               month,
+        "has_budget":          budget is not None,
         "total_expenses":      total_paise / 100,
         "allowance":           allowance_paise / 100,
         "spending_limit":      spending_limit_paise / 100,

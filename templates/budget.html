@@ -90,23 +90,35 @@
           <label class="form-label fw-semibold">
             Monthly Allowance (₹) <span class="text-danger">*</span>
           </label>
-          <div class="input-group">
-            <span class="input-group-text">₹</span>
-            <input type="number" class="form-control" id="budget-allowance"
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+            <input type="number" class="form-control border-start-0 ps-1" id="budget-allowance"
                    placeholder="e.g. 10000" min="0" step="0.01" required />
           </div>
-          <div class="form-text">Total money available for this month.</div>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <span class="text-muted small align-self-center me-1">Presets:</span>
+            <button type="button" class="btn btn-xs btn-chip" onclick="document.getElementById('budget-allowance').value=5000">₹5k</button>
+            <button type="button" class="btn btn-xs btn-chip" onclick="document.getElementById('budget-allowance').value=10000">₹10k</button>
+            <button type="button" class="btn btn-xs btn-chip" onclick="document.getElementById('budget-allowance').value=15000">₹15k</button>
+            <button type="button" class="btn btn-xs btn-chip" onclick="document.getElementById('budget-allowance').value=20000">₹20k</button>
+          </div>
+          <div class="form-text mt-1">Total money available for this month.</div>
         </div>
         <div class="col-12 col-sm-6">
           <label class="form-label fw-semibold">
             Spending Limit (₹) <span class="text-danger">*</span>
           </label>
-          <div class="input-group">
-            <span class="input-group-text">₹</span>
-            <input type="number" class="form-control" id="budget-limit"
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+            <input type="number" class="form-control border-start-0 ps-1" id="budget-limit"
                    placeholder="e.g. 8000" min="0" step="0.01" required />
           </div>
-          <div class="form-text">Alerts fire at 80 % and 100 % of this value.</div>
+          <div class="mt-2">
+            <button type="button" class="btn btn-xs btn-chip text-primary fw-semibold" onclick="const a = parseFloat(document.getElementById('budget-allowance').value); if(a) document.getElementById('budget-limit').value = Math.round(a * 0.8);">
+              <i class="bi bi-magic me-1"></i>Set to 80% of Allowance (Recommended)
+            </button>
+          </div>
+          <div class="form-text mt-1">Alerts trigger at 80% and 100% of this limit.</div>
         </div>
       </div>
 

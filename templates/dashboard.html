@@ -6,17 +6,23 @@
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
   <div>
     <h2 class="page-title mb-0">Dashboard</h2>
-    <p class="text-muted mb-0 small">Your spending overview at a glance</p>
+    <p class="text-muted mb-0 small">Your financial cockpit &amp; spending analytics</p>
   </div>
-  <div class="d-flex align-items-center gap-3">
+  <div class="d-flex flex-wrap align-items-center gap-2">
     <!-- Month selector -->
     <div class="input-group input-group-sm month-picker">
-      <span class="input-group-text bg-white"><i class="bi bi-calendar3"></i></span>
-      <input type="month" class="form-control" id="month-picker"
+      <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar3 text-primary"></i></span>
+      <input type="month" class="form-control border-start-0 ps-1" id="month-picker"
              value="{{ current_month }}" />
     </div>
+
+    <!-- Edit budget button -->
+    <a href="/budget" id="header-budget-btn" class="btn btn-sm btn-outline-secondary fw-semibold">
+      <i class="bi bi-wallet2 me-1"></i>Budget
+    </a>
+
     <!-- Add expense button -->
-    <button class="btn btn-primary fw-semibold"
+    <button class="btn btn-primary btn-sm fw-semibold shadow-sm btn-glow px-3"
             data-bs-toggle="modal" data-bs-target="#expenseModal"
             id="add-expense-btn">
       <i class="bi bi-plus-lg me-1"></i>Add Expense
@@ -24,126 +30,214 @@
   </div>
 </div>
 
-<!-- ── Budget alert banner ──────────────────────────────────────────────── -->
-<div id="budget-alert" class="alert d-none mb-4" role="alert"></div>
-
-<!-- ── Summary cards ────────────────────────────────────────────────────── -->
-<div class="row g-3 mb-4">
-  <!-- Allowance -->
-  <div class="col-6 col-lg-3">
-    <div class="summary-card">
-      <div class="summary-card-icon icon-blue">
-        <i class="bi bi-cash-coin"></i>
-      </div>
-      <div class="summary-card-body">
-        <div class="summary-label">Monthly Allowance</div>
-        <div class="summary-value" id="stat-allowance">₹—</div>
-      </div>
+<!-- ── Step 1 Gateway: Monthly Budget Setup (Visible if no budget set for this month) ── -->
+<div id="budget-setup-gate" class="setup-gateway-card d-none mb-4 animate-fade-in-up">
+  <div class="setup-content text-center py-4 px-3 px-md-5">
+    <div class="setup-badge mb-3">
+      <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold">
+        <i class="bi bi-sparkles me-1 text-primary"></i> Step 1: Set Your Monthly Budget
+      </span>
     </div>
-  </div>
+    
+    <h3 class="setup-title fw-bold mb-2">Welcome to <span class="gradient-text">SpendSense</span></h3>
+    <p class="text-muted setup-subtitle mx-auto mb-4" style="max-width: 580px;">
+      Before unlocking your spending dashboard for <strong id="gate-month-label" class="text-dark">this month</strong>, 
+      let's establish your monthly pocket money/allowance and set a smart spending boundary.
+    </p>
 
-  <!-- Total spent -->
-  <div class="col-6 col-lg-3">
-    <div class="summary-card">
-      <div class="summary-card-icon icon-red">
-        <i class="bi bi-receipt"></i>
-      </div>
-      <div class="summary-card-body">
-        <div class="summary-label">Total Spent</div>
-        <div class="summary-value" id="stat-total-spent">₹—</div>
-      </div>
-    </div>
-  </div>
+    <div class="card setup-form-card mx-auto shadow-sm text-start" style="max-width: 520px;">
+      <div class="card-body p-4">
+        <div id="gate-error" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
 
-  <!-- Remaining balance -->
-  <div class="col-6 col-lg-3">
-    <div class="summary-card">
-      <div class="summary-card-icon icon-green">
-        <i class="bi bi-piggy-bank"></i>
-      </div>
-      <div class="summary-card-body">
-        <div class="summary-label">Remaining Balance</div>
-        <div class="summary-value" id="stat-remaining">₹—</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Budget usage -->
-  <div class="col-6 col-lg-3">
-    <div class="summary-card">
-      <div class="summary-card-icon icon-amber">
-        <i class="bi bi-pie-chart"></i>
-      </div>
-      <div class="summary-card-body">
-        <div class="summary-label">Budget Usage</div>
-        <div class="summary-value" id="stat-utilisation">—%</div>
-        <div class="mt-2">
-          <div class="progress" style="height:6px;">
-            <div class="progress-bar" id="budget-progress-bar"
-                 role="progressbar" style="width:0%"></div>
+        <form id="gate-form" novalidate>
+          <!-- Allowance -->
+          <div class="mb-3">
+            <label for="gate-allowance" class="form-label fw-bold small text-uppercase letter-spacing-1">
+              Monthly Allowance (₹) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+              <input type="number" class="form-control border-start-0 ps-1" id="gate-allowance"
+                     placeholder="e.g. 10000" min="0" step="0.01" required />
+            </div>
+            <!-- Quick chips -->
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <span class="text-muted small align-self-center me-1">Presets:</span>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setGateAllowance(5000)">₹5k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setGateAllowance(8000)">₹8k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setGateAllowance(10000)">₹10k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setGateAllowance(15000)">₹15k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setGateAllowance(20000)">₹20k</button>
+            </div>
           </div>
-          <small class="text-muted d-block mt-1" id="stat-limit" style="font-size: 0.75rem;">Limit: ₹—</small>
-        </div>
+
+          <!-- Spending Limit -->
+          <div class="mb-3">
+            <label for="gate-limit" class="form-label fw-bold small text-uppercase letter-spacing-1">
+              Monthly Spending Limit (₹) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+              <input type="number" class="form-control border-start-0 ps-1" id="gate-limit"
+                     placeholder="e.g. 8000" min="0" step="0.01" required />
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <button type="button" class="btn btn-xs btn-chip text-primary fw-semibold" onclick="setGate80Percent()">
+                <i class="bi bi-magic me-1"></i>Set to 80% of Allowance (Recommended)
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Savings Projection -->
+          <div class="savings-preview-box p-3 rounded-3 mb-4 bg-light-subtle border">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted d-block">Projected Monthly Savings</small>
+                <span class="fw-bold fs-5 text-success" id="gate-savings-preview">₹0.00</span>
+              </div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                <i class="bi bi-shield-check me-1"></i>Safe Buffer
+              </span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow-sm btn-glow" id="gate-submit-btn">
+            <span class="btn-text">Save Budget &amp; Enter Dashboard</span>
+            <i class="bi bi-arrow-right-circle-fill ms-2"></i>
+            <span class="spinner-border spinner-border-sm d-none ms-2" id="gate-spinner"></span>
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── Charts row ────────────────────────────────────────────────────────── -->
-<div class="row g-3 mb-4">
-  <!-- Donut chart – category breakdown -->
-  <div class="col-12 col-lg-5">
-    <div class="card app-card h-100">
-      <div class="card-header bg-white border-0 pt-3 pb-0">
-        <h6 class="card-title fw-semibold mb-0">Spending by Category</h6>
-      </div>
-      <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 280px; position: relative;">
-        <div id="donut-empty" class="empty-state d-none">
-          <i class="bi bi-pie-chart-fill"></i>
-          <p class="mb-0">No expenses yet this month.</p>
+<!-- ── Main Dashboard Content (Visible once budget is active) ────────────────── -->
+<div id="dashboard-main-content">
+  <!-- ── Budget alert banner ──────────────────────────────────────────────── -->
+  <div id="budget-alert" class="alert d-none mb-4 animate-scale-in" role="alert"></div>
+
+  <!-- ── Summary cards ────────────────────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <!-- Allowance -->
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="summary-card-icon icon-blue">
+          <i class="bi bi-cash-coin"></i>
         </div>
-        <div id="donut-wrapper" class="w-100" style="position: relative; height: 260px;">
-          <canvas id="donut-chart"></canvas>
+        <div class="summary-card-body">
+          <div class="summary-label">Monthly Allowance</div>
+          <div class="summary-value" id="stat-allowance">₹—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total spent -->
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="summary-card-icon icon-red">
+          <i class="bi bi-receipt"></i>
+        </div>
+        <div class="summary-card-body">
+          <div class="summary-label">Total Spent</div>
+          <div class="summary-value" id="stat-total-spent">₹—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remaining balance -->
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="summary-card-icon icon-green">
+          <i class="bi bi-piggy-bank"></i>
+        </div>
+        <div class="summary-card-body">
+          <div class="summary-label">Remaining Balance</div>
+          <div class="summary-value" id="stat-remaining">₹—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget usage -->
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="summary-card-icon icon-amber">
+          <i class="bi bi-pie-chart"></i>
+        </div>
+        <div class="summary-card-body">
+          <div class="summary-label">Budget Usage</div>
+          <div class="summary-value" id="stat-utilisation">—%</div>
+          <div class="mt-2">
+            <div class="progress" style="height:6px;">
+              <div class="progress-bar" id="budget-progress-bar"
+                   role="progressbar" style="width:0%"></div>
+            </div>
+            <small class="text-muted d-block mt-1" id="stat-limit" style="font-size: 0.75rem;">Limit: ₹—</small>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bar chart – daily spending -->
-  <div class="col-12 col-lg-7">
-    <div class="card app-card h-100">
-      <div class="card-header bg-white border-0 pt-3 pb-0">
-        <h6 class="card-title fw-semibold mb-0">Daily Spending</h6>
-      </div>
-      <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 280px; position: relative;">
-        <div id="bar-empty" class="empty-state d-none">
-          <i class="bi bi-bar-chart-fill"></i>
-          <p class="mb-0">No expenses yet this month.</p>
+  <!-- ── Charts row ────────────────────────────────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <!-- Donut chart – category breakdown -->
+    <div class="col-12 col-lg-5">
+      <div class="card app-card h-100">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="card-title fw-semibold mb-0">Spending by Category</h6>
+          <span class="badge bg-light text-muted fw-normal small">Monthly</span>
         </div>
-        <div id="bar-wrapper" class="w-100" style="position: relative; height: 260px;">
-          <canvas id="bar-chart"></canvas>
+        <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 280px; position: relative;">
+          <div id="donut-empty" class="empty-state d-none">
+            <i class="bi bi-pie-chart-fill"></i>
+            <p class="mb-0">No expenses yet this month.</p>
+          </div>
+          <div id="donut-wrapper" class="w-100" style="position: relative; height: 260px;">
+            <canvas id="donut-chart"></canvas>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ── Recent transactions ───────────────────────────────────────────────── -->
-<div class="card app-card">
-  <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-    <h6 class="card-title fw-semibold mb-0">Recent Transactions</h6>
-    <a href="/transactions" class="btn btn-sm btn-outline-secondary" id="view-all-tx-link">View All</a>
-  </div>
-  <div class="card-body px-0 pb-0">
-    <div id="recent-empty" class="empty-state px-4 d-none">
-      <i class="bi bi-inbox"></i>
-      <p>No transactions recorded this month yet.</p>
-      <button class="btn btn-primary btn-sm"
-              data-bs-toggle="modal" data-bs-target="#expenseModal">
-        Add your first expense
-      </button>
+    <!-- Bar chart – daily spending -->
+    <div class="col-12 col-lg-7">
+      <div class="card app-card h-100">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="card-title fw-semibold mb-0">Daily Spending</h6>
+          <span class="badge bg-light text-muted fw-normal small">Timeline</span>
+        </div>
+        <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 280px; position: relative;">
+          <div id="bar-empty" class="empty-state d-none">
+            <i class="bi bi-bar-chart-fill"></i>
+            <p class="mb-0">No expenses yet this month.</p>
+          </div>
+          <div id="bar-wrapper" class="w-100" style="position: relative; height: 260px;">
+            <canvas id="bar-chart"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="recent-list"></div>
+  </div>
+
+  <!-- ── Recent transactions ───────────────────────────────────────────────── -->
+  <div class="card app-card">
+    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+      <h6 class="card-title fw-semibold mb-0">Recent Transactions</h6>
+      <a href="/transactions" class="btn btn-sm btn-outline-secondary" id="view-all-tx-link">View All</a>
+    </div>
+    <div class="card-body px-0 pb-0">
+      <div id="recent-empty" class="empty-state px-4 d-none">
+        <i class="bi bi-inbox"></i>
+        <p>No transactions recorded this month yet.</p>
+        <button class="btn btn-primary btn-sm"
+                data-bs-toggle="modal" data-bs-target="#expenseModal">
+          Add your first expense
+        </button>
+      </div>
+      <div id="recent-list"></div>
+    </div>
   </div>
 </div>
 {% endblock %}
