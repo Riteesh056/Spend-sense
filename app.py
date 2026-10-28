@@ -133,9 +133,13 @@ def create_app(config_overrides=None):
     return app
 
 
+# ── Top-level application instance (required by Vercel & WSGI servers) ────────
+app = create_app()
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 # Running `python app.py` starts the development server.
-# For production use gunicorn: gunicorn "app:create_app()"
+# For production use gunicorn: gunicorn "app:app" or "app:create_app()"
 if __name__ == "__main__":
-    application = create_app()
-    application.run(host="0.0.0.0", port=5000, debug=config.DEBUG)
+    app.run(host="0.0.0.0", port=5000, debug=config.DEBUG)
+

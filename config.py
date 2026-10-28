@@ -12,9 +12,10 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ── Database ──────────────────────────────────────────────────────────────────
-# The production SQLite file is stored inside a `data/` sub-directory so it
-# can be excluded from Git easily.
-DATA_DIR = os.environ.get("DATA_DIR", os.path.join(BASE_DIR, "data"))
+# The production SQLite file is stored inside a `data/` sub-directory locally,
+# or `/tmp` when deployed on serverless environments like Vercel (where root filesystem is read-only).
+DEFAULT_DATA_DIR = "/tmp" if os.environ.get("VERCEL") == "1" else os.path.join(BASE_DIR, "data")
+DATA_DIR = os.environ.get("DATA_DIR", DEFAULT_DATA_DIR)
 DATABASE_PATH = os.environ.get("DATABASE_PATH", os.path.join(DATA_DIR, "spendsense.db"))
 
 # Separate database used only during automated tests.
