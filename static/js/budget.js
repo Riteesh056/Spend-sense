@@ -154,6 +154,42 @@ budgetForm.addEventListener('submit', async (e) => {
   }
 });
 
+// ── Reset budget for month ───────────────────────────────────────────────────
+
+const resetBtn = document.getElementById('budget-reset-btn');
+if (resetBtn) {
+  resetBtn.addEventListener('click', async () => {
+    const month = monthPicker.value;
+    const formatted = formatMonthLabel(month);
+    if (!confirm(`Are you sure you want to reset the budget for ${formatted}? This will clear your allowance and spending limit for this month.`)) {
+      return;
+    }
+
+    resetBtn.disabled = true;
+    try {
+      const res = await fetch(`/api/budgets/${month}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        formSuccess.textContent = `Budget for ${formatted} reset successfully.`;
+        formSuccess.classList.remove('d-none');
+        formError.classList.add('d-none');
+        allowanceInput.value = '';
+        limitInput.value     = '';
+        document.dispatchEvent(new CustomEvent('budgetSaved', { detail: data }));
+        loadBudgetPage(month);
+      } else {
+        formError.textContent = data.error || 'Failed to reset budget.';
+        formError.classList.remove('d-none');
+      }
+    } catch {
+      formError.textContent = 'Network error. Please try again.';
+      formError.classList.remove('d-none');
+    } finally {
+      resetBtn.disabled = false;
+    }
+  });
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatMonthLabel(ym) {

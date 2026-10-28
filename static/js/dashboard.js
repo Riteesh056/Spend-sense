@@ -60,6 +60,19 @@ const editError           = document.getElementById('edit-budget-error');
 const editSaveBtn         = document.getElementById('edit-budget-save-btn');
 const editSpinner         = document.getElementById('edit-budget-spinner');
 
+// ── DOM refs: Reset Month Modal ───────────────────────────────────────────────
+const resetMonthModalEl    = document.getElementById('resetMonthModal');
+const resetMonthModal      = resetMonthModalEl ? new bootstrap.Modal(resetMonthModalEl) : null;
+const resetMonthForm       = document.getElementById('reset-month-form');
+const resetModalMonthLabel = document.getElementById('reset-modal-month-label');
+const resetWarningMonth    = document.getElementById('reset-warning-month');
+const resetPreviewMonth    = document.getElementById('reset-preview-month');
+const resetPreviewAllowance= document.getElementById('reset-preview-allowance');
+const resetPreviewSpent    = document.getElementById('reset-preview-spent');
+const resetModalError      = document.getElementById('reset-modal-error');
+const resetConfirmBtn      = document.getElementById('reset-confirm-btn');
+const resetSpinner         = document.getElementById('reset-spinner');
+
 // ── In-memory state for active budget ─────────────────────────────────────────
 let currentBudgetData = { allowance: 0, spending_limit: 0 };
 
@@ -293,6 +306,71 @@ if (editBudgetForm) {
     } finally {
       if (editSaveBtn) editSaveBtn.disabled = false;
       if (editSpinner) editSpinner.classList.add('d-none');
+    }
+  });
+}
+
+// ── Reset Month Modal Logic ───────────────────────────────────────────────────
+
+if (resetMonthModalEl) {
+  resetMonthModalEl.addEventListener('show.bs.modal', () => {
+    const monthFormatted = formatMonthName(currentMonth);
+    if (resetModalMonthLabel)  resetModalMonthLabel.textContent  = `for ${monthFormatted}`;
+    if (resetWarningMonth)     resetWarningMonth.textContent     = monthFormatted;
+    if (resetPreviewMonth)     resetPreviewMonth.textContent     = monthFormatted;
+    if (resetPreviewAllowance) resetPreviewAllowance.textContent = formatRupees(currentBudgetData.allowance);
+    if (resetPreviewSpent)     resetPreviewSpent.textContent     = statTotalSpent ? statTotalSpent.textContent : '₹0.00';
+    if (resetModalError) {
+      resetModalError.classList.add('d-none');
+      resetModalError.textContent = '';
+    }
+    const defaultRadio = document.getElementById('resetTypeAll');
+    if (defaultRadio) defaultRadio.checked = true;
+  });
+}
+
+if (resetMonthForm) {
+  resetMonthForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (resetModalError) resetModalError.classList.add('d-none');
+
+    const selectedRadio = resetMonthForm.querySelector('input[name="resetType"]:checked');
+    const resetType = selectedRadio ? selectedRadio.value : 'all';
+
+    if (resetConfirmBtn) resetConfirmBtn.disabled = true;
+    if (resetSpinner)    resetSpinner.classList.remove('d-none');
+
+    try {
+      const res = await fetch('/api/reset-month', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          month:      currentMonth,
+          reset_type: resetType,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        if (resetMonthModal) resetMonthModal.hide();
+        // Dispatch custom events to inform all components
+        document.dispatchEvent(new CustomEvent('budgetSaved', { detail: data }));
+        document.dispatchEvent(new CustomEvent('expenseDeleted', { detail: data }));
+        loadDashboard(currentMonth);
+      } else {
+        if (resetModalError) {
+          resetModalError.textContent = data.error || 'Failed to reset month data.';
+          resetModalError.classList.remove('d-none');
+        }
+      }
+    } catch {
+      if (resetModalError) {
+        resetModalError.textContent = 'Network error. Please try again.';
+        resetModalError.classList.remove('d-none');
+      }
+    } finally {
+      if (resetConfirmBtn) resetConfirmBtn.disabled = false;
+      if (resetSpinner)    resetSpinner.classList.add('d-none');
     }
   });
 }

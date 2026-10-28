@@ -25,6 +25,12 @@
       <i class="bi bi-wallet2 me-1"></i>Budget Details
     </a>
 
+    <!-- Reset month button -->
+    <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" id="header-reset-month-btn"
+            data-bs-toggle="modal" data-bs-target="#resetMonthModal" title="Reset this month's budget or expenses">
+      <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Month
+    </button>
+
     <!-- Add expense button -->
     <button class="btn btn-primary btn-sm fw-semibold shadow-sm btn-glow px-3"
             data-bs-toggle="modal" data-bs-target="#expenseModal"
@@ -327,6 +333,84 @@
             <span class="btn-text">Save Changes</span>
             <span class="spinner-border spinner-border-sm d-none ms-2" id="edit-budget-spinner"></span>
           </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Reset Month Modal ────────────────────────────────────────────────── -->
+<div class="modal fade" id="resetMonthModal" tabindex="-1" aria-labelledby="resetMonthModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-2">
+          <div class="summary-card-icon icon-red p-2" style="width: 40px; height: 40px; border-radius: 10px;">
+            <i class="bi bi-arrow-counterclockwise fs-5 text-danger"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold text-danger mb-0" id="resetMonthModalLabel">Reset Month</h5>
+            <p class="text-muted small mb-0" id="reset-modal-month-label">for this month</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body pt-3">
+        <div class="alert alert-warning py-2 px-3 small mb-3 d-flex align-items-center">
+          <i class="bi bi-exclamation-triangle-fill me-2 fs-5 text-warning flex-shrink-0"></i>
+          <div>This action only resets data for <strong id="reset-warning-month">the selected month</strong>. Other months remain untouched.</div>
+        </div>
+
+        <div id="reset-modal-error" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+        <form id="reset-month-form">
+          <div class="mb-3">
+            <label class="form-label fw-bold small text-uppercase letter-spacing-1">Select Reset Mode:</label>
+            <div class="d-flex flex-column gap-2">
+              <label class="p-3 border rounded-3 d-flex align-items-start gap-2 cursor-pointer bg-light-subtle">
+                <input class="form-check-input mt-1 flex-shrink-0" type="radio" name="resetType" id="resetTypeAll" value="all" checked>
+                <div>
+                  <div class="fw-bold text-dark">Reset Everything for This Month</div>
+                  <div class="text-muted small">Wipes out this month's budget configuration and deletes all expenses. Returns to initial Step 1 setup.</div>
+                </div>
+              </label>
+
+              <label class="p-3 border rounded-3 d-flex align-items-start gap-2 cursor-pointer bg-light-subtle">
+                <input class="form-check-input mt-1 flex-shrink-0" type="radio" name="resetType" id="resetTypeBudget" value="budget">
+                <div>
+                  <div class="fw-bold text-dark">Reset Budget Only</div>
+                  <div class="text-muted small">Clears allowance and spending limit so you can reconfigure it. All recorded expenses remain safe.</div>
+                </div>
+              </label>
+
+              <label class="p-3 border rounded-3 d-flex align-items-start gap-2 cursor-pointer bg-light-subtle">
+                <input class="form-check-input mt-1 flex-shrink-0" type="radio" name="resetType" id="resetTypeExpenses" value="expenses">
+                <div>
+                  <div class="fw-bold text-dark">Reset Expenses Only</div>
+                  <div class="text-muted small">Deletes all expense transactions for this month. Retains your configured monthly budget.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Current Month Summary Preview -->
+          <div class="p-3 bg-light rounded-3 mb-4 border">
+            <div class="small fw-semibold text-muted mb-1">Active data in <span id="reset-preview-month">this month</span>:</div>
+            <div class="d-flex justify-content-between small">
+              <span>Allowance: <strong id="reset-preview-allowance">₹0.00</strong></span>
+              <span>Total Spent: <strong id="reset-preview-spent" class="text-danger">₹0.00</strong></span>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-light border fw-semibold px-3" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger fw-bold px-4 shadow-sm" id="reset-confirm-btn">
+              <i class="bi bi-trash3-fill me-1"></i>
+              <span class="btn-text">Confirm Reset</span>
+              <span class="spinner-border spinner-border-sm d-none ms-1" id="reset-spinner"></span>
+            </button>
+          </div>
         </form>
       </div>
     </div>

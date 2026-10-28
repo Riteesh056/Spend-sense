@@ -122,11 +122,15 @@
         </div>
       </div>
 
-      <div class="mt-4">
+      <div class="mt-4 d-flex flex-wrap gap-2">
         <button type="submit" class="btn btn-primary fw-semibold" id="budget-save-btn">
           <i class="bi bi-save me-1"></i>
           <span class="btn-text">Save Budget</span>
           <span class="spinner-border spinner-border-sm d-none ms-2" id="budget-spinner"></span>
+        </button>
+        <button type="button" class="btn btn-outline-danger fw-semibold" id="budget-reset-btn"
+                title="Reset allowance and spending limit for this month">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Budget
         </button>
       </div>
     </form>

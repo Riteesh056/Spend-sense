@@ -136,6 +136,44 @@ clearFiltersBtn.addEventListener('click', () => {
   loadTransactions();
 });
 
+const resetMonthTxBtn = document.getElementById('reset-month-tx-btn');
+if (resetMonthTxBtn) {
+  resetMonthTxBtn.addEventListener('click', async () => {
+    const month = filterMonth.value;
+    if (!month) {
+      alert('Please select a valid month first.');
+      return;
+    }
+    const [y, m] = month.split('-');
+    const dt = new Date(Number(y), Number(m) - 1, 1);
+    const monthName = dt.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+    if (!confirm(`Are you sure you want to delete ALL transactions for ${monthName}? This cannot be undone.`)) {
+      return;
+    }
+
+    resetMonthTxBtn.disabled = true;
+    try {
+      const res = await fetch('/api/reset-month', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ month: month, reset_type: 'expenses' }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.dispatchEvent(new CustomEvent('expenseDeleted', { detail: data }));
+        loadTransactions();
+      } else {
+        alert(data.error || 'Failed to reset transactions.');
+      }
+    } catch {
+      alert('Network error. Please try again.');
+    } finally {
+      resetMonthTxBtn.disabled = false;
+    }
+  });
+}
+
 document.addEventListener('expenseSaved',   loadTransactions);
 document.addEventListener('expenseDeleted', loadTransactions);
 

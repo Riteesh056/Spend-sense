@@ -152,3 +152,74 @@ def upsert_budget():
     result["allowance"]      = result["allowance_paise"]      / 100
     result["spending_limit"] = result["spending_limit_paise"] / 100
     return jsonify(result), 200
+
+
+@budgets_bp.route("/api/budgets/<month>", methods=["DELETE"])
+def delete_budget(month):
+    """
+    Delete the budget record for the given month (YYYY-MM).
+    """
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        return jsonify({"error": "Month must be in YYYY-MM format."}), 400
+
+    db = get_db()
+    cursor = db.execute("DELETE FROM monthly_budgets WHERE month = ?", (month,))
+    db.commit()
+
+    return jsonify({
+        "success": True,
+        "message": f"Budget for {month} has been reset.",
+        "month": month,
+        "deleted": cursor.rowcount > 0,
+    }), 200
+
+
+@budgets_bp.route("/api/reset-month", methods=["POST"])
+def reset_month():
+    """
+    Reset data for a specific month.
+
+    JSON body:
+      month       – YYYY-MM (required)
+      reset_type  – "all" | "budget" | "expenses" (default: "all")
+    """
+    data = request.get_json(silent=True) or {}
+    month = data.get("month", "").strip()
+    reset_type = data.get("reset_type", "all").strip().lower()
+
+    if not month:
+        return jsonify({"error": "'month' is required (YYYY-MM)."}), 400
+
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        return jsonify({"error": "'month' must be in YYYY-MM format."}), 400
+
+    if reset_type not in ("all", "budget", "expenses"):
+        return jsonify({"error": "reset_type must be 'all', 'budget', or 'expenses'."}), 400
+
+    db = get_db()
+    budget_deleted = False
+    expenses_deleted = 0
+
+    if reset_type in ("all", "budget"):
+        cur_b = db.execute("DELETE FROM monthly_budgets WHERE month = ?", (month,))
+        budget_deleted = cur_b.rowcount > 0
+
+    if reset_type in ("all", "expenses"):
+        cur_e = db.execute("DELETE FROM expenses WHERE expense_date LIKE ?", (f"{month}-%",))
+        expenses_deleted = cur_e.rowcount
+
+    db.commit()
+
+    return jsonify({
+        "success": True,
+        "month": month,
+        "reset_type": reset_type,
+        "budget_deleted": budget_deleted,
+        "expenses_deleted": expenses_deleted,
+        "message": f"Successfully reset {reset_type} data for {month}."
+    }), 200
+

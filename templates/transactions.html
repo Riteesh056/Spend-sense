@@ -31,9 +31,12 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-12 col-sm-4">
-        <button class="btn btn-outline-secondary w-100" id="clear-filters-btn">
-          <i class="bi bi-x-circle me-1"></i>Clear Filters
+      <div class="col-12 col-sm-4 d-flex gap-2">
+        <button class="btn btn-outline-secondary w-50" id="clear-filters-btn">
+          <i class="bi bi-x-circle me-1"></i>Clear
+        </button>
+        <button class="btn btn-outline-danger w-50" id="reset-month-tx-btn" title="Delete all transactions for the selected month">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Month
         </button>
       </div>
     </div>

@@ -183,3 +183,23 @@ def delete_expense(expense_id):
     db.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
     db.commit()
     return jsonify({"message": f"Expense {expense_id} deleted."}), 200
+
+
+@expenses_bp.route("/api/expenses/month/<month>", methods=["DELETE"])
+def delete_expenses_for_month(month):
+    """Delete all expenses for the given month (YYYY-MM)."""
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        return jsonify({"error": "Month must be in YYYY-MM format."}), 400
+
+    db = get_db()
+    cursor = db.execute("DELETE FROM expenses WHERE expense_date LIKE ?", (f"{month}-%",))
+    db.commit()
+
+    return jsonify({
+        "success": True,
+        "message": f"All expenses for {month} have been deleted.",
+        "month": month,
+        "deleted_count": cursor.rowcount,
+    }), 200
