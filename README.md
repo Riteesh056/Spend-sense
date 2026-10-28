@@ -7,7 +7,7 @@
 [![SQLite](https://img.shields.io/badge/Database-SQLite-lightgrey.svg)](https://www.sqlite.org/)
 [![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205-purple.svg)](https://getbootstrap.com/)
 [![Chart.js](https://img.shields.io/badge/Charts-Chart.js%204.4-orange.svg)](https://www.chartjs.org/)
-[![Tests](https://img.shields.io/badge/Tests-84%20Passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-102%20Passing-brightgreen.svg)](tests/)
 
 ---
 
