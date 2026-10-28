@@ -25,10 +25,13 @@ const statLimit         = document.getElementById('stat-limit');
 const budgetProgressBar = document.getElementById('budget-progress-bar');
 const donutCtx          = document.getElementById('donut-chart');
 const barCtx            = document.getElementById('bar-chart');
+const donutWrapper      = document.getElementById('donut-wrapper');
+const barWrapper        = document.getElementById('bar-wrapper');
 const donutEmpty        = document.getElementById('donut-empty');
 const barEmpty          = document.getElementById('bar-empty');
 const recentList        = document.getElementById('recent-list');
 const recentEmpty       = document.getElementById('recent-empty');
+const viewAllTxLink     = document.getElementById('view-all-tx-link');
 
 // ── Colour palette for charts ─────────────────────────────────────────────────
 const CHART_COLORS = [
@@ -40,6 +43,10 @@ const CHART_COLORS = [
 
 async function loadDashboard(month) {
   try {
+    if (viewAllTxLink) {
+      viewAllTxLink.href = `/transactions?month=${month}`;
+    }
+
     const res  = await fetch(`/api/analytics/${month}`);
     const data = await res.json();
 
@@ -115,7 +122,7 @@ function renderBudgetAlert(data) {
 function renderDonutChart(breakdown) {
   const empty = !breakdown || breakdown.length === 0;
   donutEmpty.classList.toggle('d-none', !empty);
-  donutCtx.classList.toggle('d-none',   empty);
+  if (donutWrapper) donutWrapper.classList.toggle('d-none', empty);
 
   if (empty) {
     if (donutChart) { donutChart.destroy(); donutChart = null; }
@@ -136,7 +143,7 @@ function renderDonutChart(breakdown) {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       cutout: '65%',
       plugins: {
         legend: {
@@ -158,7 +165,7 @@ function renderDonutChart(breakdown) {
 function renderBarChart(daily) {
   const empty = !daily || daily.length === 0;
   barEmpty.classList.toggle('d-none', !empty);
-  barCtx.classList.toggle('d-none',   empty);
+  if (barWrapper) barWrapper.classList.toggle('d-none', empty);
 
   if (empty) {
     if (barChart) { barChart.destroy(); barChart = null; }
@@ -188,7 +195,7 @@ function renderBarChart(daily) {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
