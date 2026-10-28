@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Transactions – SpendSense{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+  <div>
+    <h2 class="page-title mb-0">Transactions</h2>
+    <p class="text-muted mb-0 small">Full history of your recorded expenses</p>
+  </div>
+  <button class="btn btn-primary fw-semibold"
+          data-bs-toggle="modal" data-bs-target="#expenseModal">
+    <i class="bi bi-plus-lg me-1"></i>Add Expense
+  </button>
+</div>
+
+<!-- Filters -->
+<div class="card app-card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-12 col-sm-4">
+        <label class="form-label fw-semibold small mb-1">Month</label>
+        <input type="month" class="form-control" id="filter-month"
+               value="{{ current_month }}" />
+      </div>
+      <div class="col-12 col-sm-4">
+        <label class="form-label fw-semibold small mb-1">Category</label>
+        <select class="form-select" id="filter-category">
+          <option value="">All categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-sm-4">
+        <button class="btn btn-outline-secondary w-100" id="clear-filters-btn">
+          <i class="bi bi-x-circle me-1"></i>Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction table -->
+<div class="card app-card">
+  <div class="card-body px-0 pb-0">
+    <div id="tx-empty" class="empty-state d-none px-4">
+      <i class="bi bi-search"></i>
+      <p>No transactions match your filters.</p>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="tx-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Date</th>
+            <th>Category</th>
+            <th>Note</th>
+            <th class="text-end">Amount</th>
+            <th class="text-center pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tx-body">
+          <!-- Filled by transactions.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Inline Edit Modal (reuses base modal with different title) -->
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
+{% endblock %}

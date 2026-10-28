@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Budget – SpendSense{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+  <div>
+    <h2 class="page-title mb-0">Budget Settings</h2>
+    <p class="text-muted mb-0 small">Set your monthly allowance and spending limit</p>
+  </div>
+  <div class="input-group input-group-sm month-picker">
+    <span class="input-group-text bg-white"><i class="bi bi-calendar3"></i></span>
+    <input type="month" class="form-control" id="budget-month-picker"
+           value="{{ current_month }}" />
+  </div>
+</div>
+
+<!-- Status summary -->
+<div class="row g-3 mb-4" id="budget-summary-row">
+  <div class="col-6 col-md-3">
+    <div class="summary-card">
+      <div class="summary-card-icon icon-blue"><i class="bi bi-wallet2"></i></div>
+      <div class="summary-card-body">
+        <div class="summary-label">Allowance</div>
+        <div class="summary-value" id="bsum-allowance">₹—</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="summary-card">
+      <div class="summary-card-icon icon-amber"><i class="bi bi-shield-exclamation"></i></div>
+      <div class="summary-card-body">
+        <div class="summary-label">Spending Limit</div>
+        <div class="summary-value" id="bsum-limit">₹—</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="summary-card">
+      <div class="summary-card-icon icon-red"><i class="bi bi-receipt"></i></div>
+      <div class="summary-card-body">
+        <div class="summary-label">Total Spent</div>
+        <div class="summary-value" id="bsum-spent">₹—</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="summary-card">
+      <div class="summary-card-icon icon-green"><i class="bi bi-piggy-bank"></i></div>
+      <div class="summary-card-body">
+        <div class="summary-label">Remaining Budget</div>
+        <div class="summary-value" id="bsum-remaining">₹—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Budget alert -->
+<div id="budget-alert" class="alert d-none mb-4" role="alert"></div>
+
+<!-- Budget utilisation bar -->
+<div class="card app-card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-2">
+      <span class="fw-semibold">Budget Utilisation</span>
+      <span id="util-pct-label" class="fw-bold">0%</span>
+    </div>
+    <div class="progress" style="height:14px; border-radius:8px;">
+      <div class="progress-bar" id="util-bar"
+           role="progressbar" style="width:0%; border-radius:8px;"></div>
+    </div>
+    <div class="d-flex justify-content-between mt-1">
+      <small class="text-muted">₹0</small>
+      <small class="text-muted" id="util-limit-label">Limit: ₹—</small>
+    </div>
+  </div>
+</div>
+
+<!-- Edit form -->
+<div class="card app-card">
+  <div class="card-header bg-white border-0 pt-3 pb-0">
+    <h6 class="fw-bold mb-0">Edit Budget for <span id="budget-form-month-label">—</span></h6>
+  </div>
+  <div class="card-body">
+    <div id="budget-form-error"  class="alert alert-danger  d-none"></div>
+    <div id="budget-form-success" class="alert alert-success d-none"></div>
+
+    <form id="budget-form" novalidate>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6">
+          <label class="form-label fw-semibold">
+            Monthly Allowance (₹) <span class="text-danger">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input type="number" class="form-control" id="budget-allowance"
+                   placeholder="e.g. 10000" min="0" step="0.01" required />
+          </div>
+          <div class="form-text">Total money available for this month.</div>
+        </div>
+        <div class="col-12 col-sm-6">
+          <label class="form-label fw-semibold">
+            Spending Limit (₹) <span class="text-danger">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input type="number" class="form-control" id="budget-limit"
+                   placeholder="e.g. 8000" min="0" step="0.01" required />
+          </div>
+          <div class="form-text">Alerts fire at 80 % and 100 % of this value.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary fw-semibold" id="budget-save-btn">
+          <i class="bi bi-save me-1"></i>
+          <span class="btn-text">Save Budget</span>
+          <span class="spinner-border spinner-border-sm d-none ms-2" id="budget-spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/budget.js') }}"></script>
+{% endblock %}

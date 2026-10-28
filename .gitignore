@@ -1,0 +1,40 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ── Virtual environment ────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Database files ─────────────────────────────────────────────────────────────
+# The SQLite database must NEVER be committed.
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Environment secrets ────────────────────────────────────────────────────────
+.env
+.env.*
+secrets.py
+
+# ── IDE / OS ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# ── Pytest cache ───────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Distribution ──────────────────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/

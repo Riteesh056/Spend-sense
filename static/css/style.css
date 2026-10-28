@@ -1,0 +1,290 @@
+/* ============================================================
+   static/css/style.css  –  SpendSense custom styles
+   ============================================================
+   Design tokens
+   ─────────────
+   --color-primary      #4F46E5   indigo
+   --color-green        #16A34A
+   --color-amber        #D97706
+   --color-red          #DC2626
+   --color-bg           #F8F9FB   page background
+   --color-card         #FFFFFF
+   --color-sidebar      #1E1B4B   dark indigo
+   --color-text         #1F2937   charcoal
+   --color-muted        #6B7280
+   ============================================================ */
+
+:root {
+  --color-primary:  #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-green:    #16A34A;
+  --color-amber:    #D97706;
+  --color-red:      #DC2626;
+  --color-bg:       #F8F9FB;
+  --color-card:     #FFFFFF;
+  --color-sidebar:  #1E1B4B;
+  --color-sidebar-hover: #2D2969;
+  --color-text:     #1F2937;
+  --color-muted:    #6B7280;
+  --sidebar-width:  230px;
+  --border-radius:  12px;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:      0 4px 12px rgba(0,0,0,.08);
+}
+
+/* ── Reset & base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.925rem;
+  min-height: 100vh;
+}
+
+/* ── Layout wrapper ─────────────────────────────────────────────────────── */
+#wrapper { min-height: 100vh; }
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--color-sidebar);
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  padding: 0 0.5rem;
+}
+
+.brand-icon { font-size: 1.5rem; }
+
+.brand-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-link {
+  color: rgba(255,255,255,.7);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-weight: 500;
+  transition: background .15s, color .15s;
+  font-size: 0.9rem;
+}
+.sidebar-link:hover {
+  color: #fff;
+  background: var(--color-sidebar-hover);
+}
+.sidebar-link.active {
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.sidebar-footer {
+  padding: 0 0.5rem 0.5rem;
+}
+
+/* ── Mobile nav ─────────────────────────────────────────────────────────── */
+.mobile-nav {
+  background: var(--color-card);
+  border-bottom: 1px solid #E5E7EB;
+  padding: 0.75rem 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Page content ───────────────────────────────────────────────────────── */
+#page-content-wrapper { overflow-x: hidden; }
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ── App card ────────────────────────────────────────────────────────────── */
+.app-card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-card);
+}
+
+/* ── Summary cards ───────────────────────────────────────────────────────── */
+.summary-card {
+  background: var(--color-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  height: 100%;
+  transition: box-shadow .2s;
+}
+.summary-card:hover { box-shadow: var(--shadow-md); }
+
+.summary-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.icon-blue  { background: #EEF2FF; color: var(--color-primary); }
+.icon-green { background: #DCFCE7; color: var(--color-green);   }
+.icon-amber { background: #FEF3C7; color: var(--color-amber);   }
+.icon-red   { background: #FEE2E2; color: var(--color-red);     }
+
+.summary-card-body { flex: 1; min-width: 0; }
+
+.summary-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 2px;
+}
+
+.summary-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Progress bar colours ────────────────────────────────────────────────── */
+.progress-bar.bg-success { background-color: var(--color-green)  !important; }
+.progress-bar.bg-warning { background-color: var(--color-amber)  !important; }
+.progress-bar.bg-danger  { background-color: var(--color-red)    !important; }
+
+/* ── Month picker ────────────────────────────────────────────────────────── */
+.month-picker { max-width: 180px; }
+.month-picker .form-control { font-size: 0.875rem; }
+
+/* ── Empty states ────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-muted);
+}
+.empty-state i {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  opacity: .4;
+}
+.empty-state p { font-size: 0.9rem; margin-bottom: 1rem; }
+
+/* ── Recent transactions list ────────────────────────────────────────────── */
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #F3F4F6;
+  transition: background .12s;
+}
+.tx-item:last-child { border-bottom: none; }
+.tx-item:hover      { background: #FAFAFA; }
+
+.tx-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  background: #EEF2FF;
+  color: var(--color-primary);
+}
+
+.tx-details { flex: 1; min-width: 0; }
+.tx-cat  { font-weight: 600; font-size: 0.875rem; }
+.tx-note { font-size: 0.78rem; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-date { font-size: 0.75rem; color: var(--color-muted); }
+
+.tx-amount {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-red);
+  white-space: nowrap;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--color-muted);
+  font-weight: 600;
+  border-top: none;
+}
+.table td { vertical-align: middle; }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: 8px;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.modal-content {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Alert colours ───────────────────────────────────────────────────────── */
+.alert-budget-warning {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+.alert-budget-danger {
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
+  color: #9F1239;
+}
+
+/* ── Category badge colours ───────────────────────────────────────────────── */
+.badge-food          { background: #DCFCE7; color: #166534; }
+.badge-transport     { background: #DBEAFE; color: #1E40AF; }
+.badge-education     { background: #EDE9FE; color: #5B21B6; }
+.badge-shopping      { background: #FCE7F3; color: #9D174D; }
+.badge-entertainment { background: #FEF9C3; color: #713F12; }
+.badge-bills         { background: #FEE2E2; color: #991B1B; }
+.badge-health        { background: #CCFBF1; color: #134E4A; }
+.badge-other         { background: #F3F4F6; color: #374151; }
+
+/* ── Responsive tweaks ────────────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  .container-fluid.py-4 { padding: 1rem !important; }
+  .summary-value { font-size: 1.1rem; }
+  .page-title    { font-size: 1.15rem; }
+}
