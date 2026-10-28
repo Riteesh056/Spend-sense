@@ -114,13 +114,24 @@ function formatDate(iso) {
   return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// ── Initial Month Sync ────────────────────────────────────────────────────────
+if (filterMonth && typeof getActiveMonth === 'function') {
+  filterMonth.value = getActiveMonth();
+}
+
 // ── Event listeners ───────────────────────────────────────────────────────────
 
-filterMonth.addEventListener('change',    loadTransactions);
+filterMonth.addEventListener('change', () => {
+  if (typeof setActiveMonth === 'function') {
+    setActiveMonth(filterMonth.value);
+  }
+  loadTransactions();
+});
 filterCategory.addEventListener('change', loadTransactions);
 
 clearFiltersBtn.addEventListener('click', () => {
-  filterMonth.value    = new Date().toISOString().slice(0, 7);
+  const m = (typeof getActiveMonth === 'function') ? getActiveMonth() : new Date().toISOString().slice(0, 7);
+  filterMonth.value    = m;
   filterCategory.value = '';
   loadTransactions();
 });

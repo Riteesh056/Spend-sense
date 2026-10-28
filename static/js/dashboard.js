@@ -13,7 +13,9 @@
 // ── State ─────────────────────────────────────────────────────────────────────
 let donutChart = null;
 let barChart   = null;
-let currentMonth = document.getElementById('month-picker').value;
+const monthPicker = document.getElementById('month-picker');
+let currentMonth = (typeof getActiveMonth === 'function') ? getActiveMonth() : (monthPicker ? monthPicker.value : new Date().toISOString().slice(0, 7));
+if (monthPicker) monthPicker.value = currentMonth;
 
 // ── DOM refs: Gateway ─────────────────────────────────────────────────────────
 const budgetSetupGate     = document.getElementById('budget-setup-gate');
@@ -430,6 +432,9 @@ function formatDate(iso) {
 
 monthPicker.addEventListener('change', () => {
   currentMonth = monthPicker.value;
+  if (typeof setActiveMonth === 'function') {
+    setActiveMonth(currentMonth);
+  }
   loadDashboard(currentMonth);
 });
 

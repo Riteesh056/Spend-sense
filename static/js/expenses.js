@@ -19,6 +19,72 @@
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+const STORAGE_KEY_MONTH = 'spendsense_active_month';
+
+/**
+ * Get the currently active month:
+ * 1. URL search param ?month=YYYY-MM
+ * 2. localStorage saved month
+ * 3. Default to current month (YYYY-MM)
+ */
+function getActiveMonth() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const qMonth = urlParams.get('month');
+  if (qMonth && /^\d{4}-\d{2}$/.test(qMonth)) {
+    try { localStorage.setItem(STORAGE_KEY_MONTH, qMonth); } catch {}
+    return qMonth;
+  }
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_MONTH);
+    if (saved && /^\d{4}-\d{2}$/.test(saved)) {
+      return saved;
+    }
+  } catch {}
+  return new Date().toISOString().slice(0, 7);
+}
+
+/**
+ * Save active month to storage and sync all navigation links across the app.
+ */
+function setActiveMonth(month) {
+  if (!month || !/^\d{4}-\d{2}$/.test(month)) return;
+  try { localStorage.setItem(STORAGE_KEY_MONTH, month); } catch {}
+  syncNavigationLinks(month);
+}
+
+/**
+ * Update all navigation & page links so clicking Dashboard, Transactions,
+ * or Budget always preserves the selected calendar month.
+ */
+function syncNavigationLinks(month) {
+  if (!month) month = getActiveMonth();
+
+  // Update navigation links
+  document.querySelectorAll('a.nav-link, a.sidebar-link, a.navbar-brand').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    const basePaths = ['/', '/transactions', '/budget'];
+    for (const p of basePaths) {
+      if (href === p || href.startsWith(p + '?')) {
+        link.setAttribute('href', `${p}?month=${month}`);
+        break;
+      }
+    }
+  });
+
+  // Also update header buttons and view all link if present
+  const viewAll = document.getElementById('view-all-tx-link');
+  if (viewAll) viewAll.setAttribute('href', `/transactions?month=${month}`);
+
+  const headerBudget = document.getElementById('header-budget-btn');
+  if (headerBudget) headerBudget.setAttribute('href', `/budget?month=${month}`);
+}
+
+// Automatically sync on initial load
+document.addEventListener('DOMContentLoaded', () => {
+  syncNavigationLinks(getActiveMonth());
+});
+
 /** Format a number as Indian rupees: ₹1,234.56 */
 function formatRupees(amount) {
   return '₹' + Number(amount).toLocaleString('en-IN', {
@@ -87,8 +153,17 @@ const bsModal            = expenseModal ? new bootstrap.Modal(expenseModal) : nu
 
 function clearExpenseForm() {
   expenseForm.reset();
-  expenseIdInput.value   = '';
-  expenseDateInput.value = todayISO();
+  expenseIdInput.value = '';
+
+  // Smart date default: use today if viewing current month, or the 1st of the active month
+  const activeMonth = getActiveMonth();
+  const today = todayISO();
+  if (today.startsWith(activeMonth)) {
+    expenseDateInput.value = today;
+  } else {
+    expenseDateInput.value = `${activeMonth}-01`;
+  }
+
   expenseError.classList.add('d-none');
   expenseError.textContent = '';
 }

@@ -157,10 +157,19 @@ function formatMonthLabel(ym) {
 
 // ── Event listeners ───────────────────────────────────────────────────────────
 
-monthPicker.addEventListener('change', () => loadBudgetPage(monthPicker.value));
+if (monthPicker && typeof getActiveMonth === 'function') {
+  monthPicker.value = getActiveMonth();
+}
+
+monthPicker.addEventListener('change', () => {
+  if (typeof setActiveMonth === 'function') {
+    setActiveMonth(monthPicker.value);
+  }
+  loadBudgetPage(monthPicker.value);
+});
 
 document.addEventListener('expenseSaved',   () => loadBudgetPage(monthPicker.value));
 document.addEventListener('expenseDeleted', () => loadBudgetPage(monthPicker.value));
 
 // ── Initial load ──────────────────────────────────────────────────────────────
-loadBudgetPage(monthPicker.value);
+loadBudgetPage(monthPicker ? monthPicker.value : getActiveMonth());
