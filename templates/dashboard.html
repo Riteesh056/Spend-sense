@@ -17,8 +17,12 @@
     </div>
 
     <!-- Edit budget button -->
+    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="header-edit-budget-btn"
+            data-bs-toggle="modal" data-bs-target="#editBudgetModal">
+      <i class="bi bi-pencil-square me-1"></i>Edit Budget
+    </button>
     <a href="/budget" id="header-budget-btn" class="btn btn-sm btn-outline-secondary fw-semibold">
-      <i class="bi bi-wallet2 me-1"></i>Budget
+      <i class="bi bi-wallet2 me-1"></i>Budget Details
     </a>
 
     <!-- Add expense button -->
@@ -127,7 +131,13 @@
           <i class="bi bi-cash-coin"></i>
         </div>
         <div class="summary-card-body">
-          <div class="summary-label">Monthly Allowance</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="summary-label">Monthly Allowance</div>
+            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted"
+                    data-bs-toggle="modal" data-bs-target="#editBudgetModal" title="Edit Monthly Allowance">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+          </div>
           <div class="summary-value" id="stat-allowance">₹—</div>
         </div>
       </div>
@@ -166,7 +176,13 @@
           <i class="bi bi-pie-chart"></i>
         </div>
         <div class="summary-card-body">
-          <div class="summary-label">Budget Usage</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="summary-label">Budget Usage</div>
+            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted"
+                    data-bs-toggle="modal" data-bs-target="#editBudgetModal" title="Edit Spending Limit">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+          </div>
           <div class="summary-value" id="stat-utilisation">—%</div>
           <div class="mt-2">
             <div class="progress" style="height:6px;">
@@ -237,6 +253,82 @@
         </button>
       </div>
       <div id="recent-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Budget Modal ────────────────────────────────────────────────── -->
+<div class="modal fade" id="editBudgetModal" tabindex="-1" aria-labelledby="editBudgetModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h5 class="modal-title fw-bold" id="editBudgetModalLabel">Update Monthly Budget</h5>
+          <p class="text-muted small mb-0" id="edit-budget-month-label">for this month</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <div id="edit-budget-error" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+        <form id="edit-budget-form" novalidate>
+          <!-- Allowance -->
+          <div class="mb-3">
+            <label for="edit-budget-allowance" class="form-label fw-bold small text-uppercase letter-spacing-1">
+              Monthly Allowance (₹) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+              <input type="number" class="form-control border-start-0 ps-1" id="edit-budget-allowance"
+                     placeholder="e.g. 10000" min="0" step="0.01" required />
+            </div>
+            <!-- Quick chips -->
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <span class="text-muted small align-self-center me-1">Presets:</span>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setEditAllowance(5000)">₹5k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setEditAllowance(8000)">₹8k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setEditAllowance(10000)">₹10k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setEditAllowance(15000)">₹15k</button>
+              <button type="button" class="btn btn-xs btn-chip" onclick="setEditAllowance(20000)">₹20k</button>
+            </div>
+          </div>
+
+          <!-- Spending Limit -->
+          <div class="mb-3">
+            <label for="edit-budget-limit" class="form-label fw-bold small text-uppercase letter-spacing-1">
+              Monthly Spending Limit (₹) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-light border-end-0 fw-bold text-muted">₹</span>
+              <input type="number" class="form-control border-start-0 ps-1" id="edit-budget-limit"
+                     placeholder="e.g. 8000" min="0" step="0.01" required />
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <button type="button" class="btn btn-xs btn-chip text-primary fw-semibold" onclick="setEdit80Percent()">
+                <i class="bi bi-magic me-1"></i>Set to 80% of Allowance (Recommended)
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Savings Projection -->
+          <div class="savings-preview-box p-3 rounded-3 mb-4 bg-light-subtle border">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted d-block">Projected Monthly Savings</small>
+                <span class="fw-bold fs-5 text-success" id="edit-budget-savings-preview">₹0.00</span>
+              </div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                <i class="bi bi-shield-check me-1"></i>Safe Buffer
+              </span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow-sm btn-glow" id="edit-budget-save-btn">
+            <span class="btn-text">Save Changes</span>
+            <span class="spinner-border spinner-border-sm d-none ms-2" id="edit-budget-spinner"></span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>

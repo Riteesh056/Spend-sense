@@ -31,7 +31,6 @@ const gateSpinner         = document.getElementById('gate-spinner');
 const headerBudgetBtn     = document.getElementById('header-budget-btn');
 
 // ── DOM refs: Main Dashboard ──────────────────────────────────────────────────
-const monthPicker       = document.getElementById('month-picker');
 const budgetAlert       = document.getElementById('budget-alert');
 const statAllowance     = document.getElementById('stat-allowance');
 const statTotalSpent    = document.getElementById('stat-total-spent');
@@ -48,6 +47,21 @@ const barEmpty          = document.getElementById('bar-empty');
 const recentList        = document.getElementById('recent-list');
 const recentEmpty       = document.getElementById('recent-empty');
 const viewAllTxLink     = document.getElementById('view-all-tx-link');
+
+// ── DOM refs: Edit Budget Modal ───────────────────────────────────────────────
+const editBudgetModalEl   = document.getElementById('editBudgetModal');
+const editBudgetModal     = editBudgetModalEl ? new bootstrap.Modal(editBudgetModalEl) : null;
+const editBudgetForm      = document.getElementById('edit-budget-form');
+const editAllowanceInput  = document.getElementById('edit-budget-allowance');
+const editLimitInput      = document.getElementById('edit-budget-limit');
+const editSavingsPreview  = document.getElementById('edit-budget-savings-preview');
+const editBudgetMonthLabel= document.getElementById('edit-budget-month-label');
+const editError           = document.getElementById('edit-budget-error');
+const editSaveBtn         = document.getElementById('edit-budget-save-btn');
+const editSpinner         = document.getElementById('edit-budget-spinner');
+
+// ── In-memory state for active budget ─────────────────────────────────────────
+let currentBudgetData = { allowance: 0, spending_limit: 0 };
 
 // ── Colour palette for charts ─────────────────────────────────────────────────
 const CHART_COLORS = [
@@ -164,6 +178,125 @@ if (gateForm) {
   });
 }
 
+// ── Edit Budget Modal Logic ───────────────────────────────────────────────────
+
+function updateEditSavings() {
+  if (!editSavingsPreview || !editAllowanceInput || !editLimitInput) return;
+  const allowance = parseFloat(editAllowanceInput.value) || 0;
+  const limit     = parseFloat(editLimitInput.value) || 0;
+  const savings   = Math.max(0, allowance - limit);
+  editSavingsPreview.textContent = formatRupees(savings);
+}
+
+window.setEditAllowance = function(amt) {
+  if (editAllowanceInput) {
+    editAllowanceInput.value = amt;
+    if (editLimitInput && (!editLimitInput.value || parseFloat(editLimitInput.value) === 0)) {
+      editLimitInput.value = Math.round(amt * 0.8);
+    }
+    updateEditSavings();
+  }
+};
+
+window.setEdit80Percent = function() {
+  if (!editAllowanceInput) return;
+  const allowance = parseFloat(editAllowanceInput.value);
+  if (allowance && allowance > 0) {
+    if (editLimitInput) editLimitInput.value = Math.round(allowance * 0.8);
+    updateEditSavings();
+  } else if (editError) {
+    editError.textContent = 'Please enter your monthly allowance first.';
+    editError.classList.remove('d-none');
+  }
+};
+
+if (editAllowanceInput && editLimitInput) {
+  editAllowanceInput.addEventListener('input', updateEditSavings);
+  editLimitInput.addEventListener('input', updateEditSavings);
+}
+
+if (editBudgetModalEl) {
+  editBudgetModalEl.addEventListener('show.bs.modal', () => {
+    if (editBudgetMonthLabel) {
+      editBudgetMonthLabel.textContent = `for ${formatMonthName(currentMonth)}`;
+    }
+    if (editAllowanceInput) {
+      editAllowanceInput.value = currentBudgetData.allowance > 0 ? currentBudgetData.allowance : '';
+    }
+    if (editLimitInput) {
+      editLimitInput.value = currentBudgetData.spending_limit > 0 ? currentBudgetData.spending_limit : '';
+    }
+    if (editError) {
+      editError.classList.add('d-none');
+      editError.textContent = '';
+    }
+    updateEditSavings();
+  });
+}
+
+if (editBudgetForm) {
+  editBudgetForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (editError) editError.classList.add('d-none');
+
+    const allowance = parseFloat(editAllowanceInput.value);
+    const limit     = parseFloat(editLimitInput.value);
+
+    if (isNaN(allowance) || allowance <= 0) {
+      if (editError) {
+        editError.textContent = 'Please enter a valid monthly allowance (greater than ₹0).';
+        editError.classList.remove('d-none');
+      }
+      return;
+    }
+    if (isNaN(limit) || limit < 0) {
+      if (editError) {
+        editError.textContent = 'Please enter a valid spending limit.';
+        editError.classList.remove('d-none');
+      }
+      return;
+    }
+
+    if (editSaveBtn) editSaveBtn.disabled = true;
+    if (editSpinner) editSpinner.classList.remove('d-none');
+
+    try {
+      const res = await fetch('/api/budgets', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          month:          currentMonth,
+          allowance:      allowance,
+          spending_limit: limit,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        if (editBudgetModal) editBudgetModal.hide();
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+        }
+        document.dispatchEvent(new CustomEvent('budgetSaved', { detail: data }));
+        loadDashboard(currentMonth);
+      } else {
+        if (editError) {
+          editError.textContent = data.error || 'Failed to update budget.';
+          editError.classList.remove('d-none');
+        }
+      }
+    } catch {
+      if (editError) {
+        editError.textContent = 'Network error. Please try again.';
+        editError.classList.remove('d-none');
+      }
+    } finally {
+      if (editSaveBtn) editSaveBtn.disabled = false;
+      if (editSpinner) editSpinner.classList.add('d-none');
+    }
+  });
+}
+
 // ── Main fetch & render ───────────────────────────────────────────────────────
 
 async function loadDashboard(month) {
@@ -182,6 +315,12 @@ async function loadDashboard(month) {
       console.error('Analytics error:', data.error);
       return;
     }
+
+    // Keep cached for edit modal
+    currentBudgetData = {
+      allowance: data.allowance || 0,
+      spending_limit: data.spending_limit || 0
+    };
 
     // Check if user has set a budget for this month
     const hasConfiguredBudget = data.has_budget && (data.allowance > 0 || data.spending_limit > 0);
@@ -430,16 +569,39 @@ function formatDate(iso) {
 
 // ── Event listeners ───────────────────────────────────────────────────────────
 
-monthPicker.addEventListener('change', () => {
-  currentMonth = monthPicker.value;
-  if (typeof setActiveMonth === 'function') {
-    setActiveMonth(currentMonth);
+if (monthPicker) {
+  monthPicker.addEventListener('change', () => {
+    currentMonth = monthPicker.value;
+    if (typeof setActiveMonth === 'function') {
+      setActiveMonth(currentMonth);
+    }
+    loadDashboard(currentMonth);
+  });
+}
+
+document.addEventListener('expenseSaved',   () => loadDashboard(currentMonth));
+document.addEventListener('expenseDeleted', () => loadDashboard(currentMonth));
+document.addEventListener('budgetSaved',    () => loadDashboard(currentMonth));
+
+window.addEventListener('pageshow', () => {
+  const active = (typeof getActiveMonth === 'function') ? getActiveMonth() : currentMonth;
+  if (active && active !== currentMonth) {
+    currentMonth = active;
+    if (monthPicker) monthPicker.value = currentMonth;
   }
   loadDashboard(currentMonth);
 });
 
-document.addEventListener('expenseSaved',   () => loadDashboard(currentMonth));
-document.addEventListener('expenseDeleted', () => loadDashboard(currentMonth));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const active = (typeof getActiveMonth === 'function') ? getActiveMonth() : currentMonth;
+    if (active && active !== currentMonth) {
+      currentMonth = active;
+      if (monthPicker) monthPicker.value = currentMonth;
+    }
+    loadDashboard(currentMonth);
+  }
+});
 
 // ── Initial load ──────────────────────────────────────────────────────────────
 loadDashboard(currentMonth);

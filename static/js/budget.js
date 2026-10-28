@@ -133,6 +133,13 @@ budgetForm.addEventListener('submit', async (e) => {
     if (res.ok) {
       formSuccess.textContent = 'Budget saved successfully!';
       formSuccess.classList.remove('d-none');
+      if (typeof setActiveMonth === 'function') {
+        setActiveMonth(monthPicker.value);
+      }
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      }
+      document.dispatchEvent(new CustomEvent('budgetSaved', { detail: data }));
       loadBudgetPage(monthPicker.value);
     } else {
       formError.textContent = data.error || 'Failed to save budget.';
@@ -170,6 +177,15 @@ monthPicker.addEventListener('change', () => {
 
 document.addEventListener('expenseSaved',   () => loadBudgetPage(monthPicker.value));
 document.addEventListener('expenseDeleted', () => loadBudgetPage(monthPicker.value));
+document.addEventListener('budgetSaved',    () => loadBudgetPage(monthPicker.value));
+
+window.addEventListener('pageshow', () => {
+  const active = (typeof getActiveMonth === 'function') ? getActiveMonth() : monthPicker.value;
+  if (monthPicker && active && active !== monthPicker.value) {
+    monthPicker.value = active;
+  }
+  loadBudgetPage(monthPicker.value);
+});
 
 // ── Initial load ──────────────────────────────────────────────────────────────
 loadBudgetPage(monthPicker ? monthPicker.value : getActiveMonth());

@@ -139,5 +139,13 @@ clearFiltersBtn.addEventListener('click', () => {
 document.addEventListener('expenseSaved',   loadTransactions);
 document.addEventListener('expenseDeleted', loadTransactions);
 
+window.addEventListener('pageshow', () => {
+  const active = (typeof getActiveMonth === 'function') ? getActiveMonth() : filterMonth.value;
+  if (filterMonth && active && active !== filterMonth.value) {
+    filterMonth.value = active;
+  }
+  loadTransactions();
+});
+
 // ── Initial load ──────────────────────────────────────────────────────────────
 loadTransactions();
